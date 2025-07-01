@@ -1,0 +1,77 @@
+{
+    "webscrapper": {
+        "cfg": {
+            "globals": {
+                "headers": {
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.82 Safari/537.36"
+                },
+                "timeout": 10,
+                "parser": "html.parser",
+                "product": "condones"
+            },
+            "stores": {
+                "similares": {
+                    "cfg": {
+                        "url": "https://www.farmaciasdesimilares.com/#PRODUCT#?map=ft&page=#PAGE#",
+                        "main": {
+                            "elements": {
+                                "name": "div",
+                                "class_": "vtex-search-result-3-x-galleryItem vtex-search-result-3-x-galleryItem--normal vtex-search-result-3-x-galleryItem--grid pa4"
+                            }
+                        },
+                        "data": {
+                            "description": {
+                                "elements": {
+                                    "name": "span",
+                                    "class_": "vtex-product-summary-2-x-productBrand vtex-product-summary-2-x-productBrand--app-name vtex-product-summary-2-x-brandName vtex-product-summary-2-x-brandName--app-name t-body"
+                                }
+                            },
+                            "link": {
+                                "elements": {
+                                    "a": {
+                                        "property": "href"
+                                    }
+                                }
+                            },
+                            "old_price": {
+                                "elements": {
+                                    "name": "span",
+                                    "class_": "old_price"
+                                },
+                                "replaces": [
+                                    {
+                                        "pattern": "\\n",
+                                        "target": ""
+                                    },
+                                    {
+                                        "pattern": "\\t",
+                                        "target": ""
+                                    },
+                                    {
+                                        "pattern": "\\$",
+                                        "target": ""
+                                    }
+                                ]
+                            },
+                            "current_price": {
+                                "elements": {
+                                    "name": "span",
+                                    "class_": "vtex-product-summary-2-x-currencyContainer vtex-product-summary-2-x-currencyContainer--app-price"
+                                },
+                                "replaces": [
+                                    {
+                                        "pattern": "\\$",
+                                        "repl": ""
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            },
+            "del_ahorro": {},
+            "benavides": {},
+            "yza": {}
+        }
+    }
+}
