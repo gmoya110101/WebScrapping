@@ -28,9 +28,8 @@
                             },
                             "link": {
                                 "elements": {
-                                    "a": {
-                                        "property": "href"
-                                    }
+                                    "name": "a",
+                                    "class_": "vtex-product-summary-2-x-clearLink vtex-product-summary-2-x-clearLink--app-shelf-summary h-100 flex flex-column"
                                 }
                             },
                             "old_price": {

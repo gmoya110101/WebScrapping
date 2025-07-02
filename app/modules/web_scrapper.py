@@ -39,33 +39,51 @@ class WebScrapper():
             logger.error(f"Request failed: {e}")
             return None
         
-    def get_all_items(self, markup:str, cfg:dict):             
+    def extract_all_items(self, markup:str, cfg:dict):             
         html = BeautifulSoup(markup, self.cfg["globals"]["parser"])        
         items = html.find_all(**cfg)
         return items
     
+    def extract_item(self, item, cfg:dict, field:str) -> str:
+        try:
+         
+            value = item.find(**cfg[field]["elements"]).text
+            
+            if "replaces" in cfg[field]:
+                value = reduce(self.replace_values, cfg[field]["replaces"], value)
+            
+            return value
+        
+        except Exception as e:
+            logger.error(f"Without property: {field}")
+            return None
+    
     def get_product(self, item, cfg:dict)-> Product:
-        description = item.find(**cfg["description"]["elements"]).text
+        # description = item.find(**cfg["description"]["elements"]).text
         # oldPrice = item.find(**cfg["old_price"]["elements"]).text
-        currentPrice = item.find(**cfg["current_price"]["elements"]).text
+        # currentPrice = item.find(**cfg["current_price"]["elements"]).text
         
         # description = reduce(self.replace_values, cfg["description"]["replaces"], currentPrice)
         # oldPrice = reduce(self.replace_values, cfg["oldPrice"]["replaces"], currentPrice)
-        currentPrice = reduce(self.replace_values, cfg["current_price"]["replaces"], currentPrice)
+        # currentPrice = reduce(self.replace_values, cfg["current_price"]["replaces"], currentPrice)
+        aux_item = {}
         
-        product = Product(description=description ,
-                          old_price= 0.0,
-                          current_price=float(currentPrice) if currentPrice else None,
-                          link="")
+        for field in cfg:
+            aux_item[field] = self.extract_item(item=item, cfg=cfg, field=field)
+        print(aux_item)
+        # product = Product(description = aux_item["description"],
+        #                   old_price = aux_item["old_price"],
+        #                   current_price = aux_item["description"],
+        #                   link="")
         
-        return product
+        # return product
     
     def run(self):
         store:dict = self.stores["similares"]["cfg"]
         URL:str = store["url"]
         URL = self.replace_values(values= {"pattern": "#PRODUCT#", 
-                                               "repl": self.product}, 
-                                      string  = URL)
+                                           "repl": self.product}, 
+                                  string  = URL)
         page = 1
         products = []
         print(self.product)
@@ -74,7 +92,7 @@ class WebScrapper():
             
             URL = self.replace_values(values = {"pattern": "#PAGE#", 
                                                "repl": str(page)},
-                                       string= URL)
+                                      string= URL)
             logger.info(URL)
             print(URL)
             response = self.request(URL)
@@ -84,7 +102,7 @@ class WebScrapper():
             
             else:
                 
-                items = self.get_all_items(markup= response.text, cfg=store["main"]["elements"])
+                items = self.extract_all_items(markup= response.text, cfg=store["main"]["elements"])
                 
                 if not items:
                     print("Without items")
@@ -93,7 +111,7 @@ class WebScrapper():
                 
                 for item in items:     
                     product = self.get_product(item, store["data"]).to_dict()           
-                    products.append(product)                    
+                    # products.append(product)                    
 
                 page += 1
                 break
