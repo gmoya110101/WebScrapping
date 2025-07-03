@@ -7,7 +7,13 @@
                 },
                 "timeout": 10,
                 "parser": "html.parser",
-                "product": "condones"
+                "product": "condones",
+                "astypes": {
+                    "description": "string",
+                    "link": "string",
+                    "old_price": "float",
+                    "current_price": "float"
+                }
             },
             "stores": {
                 "similares": {
@@ -29,7 +35,7 @@
                             "link": {
                                 "elements": {
                                     "name": "a",
-                                    "class_": "vtex-product-summary-2-x-clearLink vtex-product-summary-2-x-clearLink--app-shelf-summary h-100 flex flex-column"
+                                    "prop": "href"
                                 }
                             },
                             "old_price": {
@@ -40,15 +46,15 @@
                                 "replaces": [
                                     {
                                         "pattern": "\\n",
-                                        "target": ""
+                                        "repl": ""
                                     },
                                     {
                                         "pattern": "\\t",
-                                        "target": ""
+                                        "repl": ""
                                     },
                                     {
                                         "pattern": "\\$",
-                                        "target": ""
+                                        "repl": ""
                                     }
                                 ]
                             },
@@ -66,11 +72,141 @@
                             }
                         }
                     }
-                }
-            },
-            "del_ahorro": {},
-            "benavides": {},
-            "yza": {}
+                },
+                "del_ahorro": {
+                    "cfg": {
+                        "url": "https://www.fahorro.com/catalogsearch/result/index/?p=#PAGE#&q=#PRODUCT#&product_list_limit=24",
+                        "main": {
+                            "elements": {
+                                "name": "div",
+                                "class_": "product-item-info"
+                            }
+                        },
+                        "data": {
+                            "description": {
+                                "elements": {
+                                    "name": "strong",
+                                    "class_": "product name product-item-name"
+                                }
+                            },
+                            "link": {
+                                "elements": {
+                                    "name": "a",
+                                    "prop": "href"
+                                }
+                            },
+                            "old_price": {
+                                "elements": {
+                                    "name": "span",
+                                    "class_": "old_price"
+                                },
+                                "replaces": [
+                                    {
+                                        "pattern": ",",
+                                        "repl": ""
+                                    },
+                                    {
+                                        "pattern": "\\$",
+                                        "repl": ""
+                                    }
+                                ]
+                            },
+                            "current_price": {
+                                "elements": {
+                                    "name": "span",
+                                    "class_": "price"
+                                },
+                                "replaces": [
+                                    {
+                                        "pattern": "\\$",
+                                        "repl": ""
+                                    },
+                                    {
+                                        "pattern": ",",
+                                        "repl": ""
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "benavides": {
+                    "cfg": {
+                        "url": "https://www.benavides.com.mx/catalogsearch/result/?p=#PAGE#&q=#PRODUCT#&product_list_limit=36",
+                        "main": {
+                            "elements": {
+                                "name": "div",
+                                "class_": "product details product-item-details"
+                            }
+                        },
+                        "data": {
+                            "description": {
+                                "elements": {
+                                    "name": "strong",
+                                    "class_": "product name product-item-name"
+                                },
+                                "replaces": [
+                                    {
+                                        "pattern": "\n\n            \n                ",
+                                        "repl": ""
+                                    },
+                                    {
+                                        "pattern": "\n            \n        \n",
+                                        "repl": ""
+                                    },
+                                    {
+                                        "pattern": " ",
+                                        "repl": ""
+                                    },
+                                    {
+                                        "pattern": "\n\n",
+                                        "repl": " "
+                                    }
+                                ]
+                            },
+                            "link": {
+                                "elements": {
+                                    "name": "a",
+                                    "prop": "href"
+                                }
+                            },
+                            "old_price": {
+                                "elements": {
+                                    "name": "span",
+                                    "class_": "old_price"
+                                },
+                                "replaces": [
+                                    {
+                                        "pattern": ",",
+                                        "repl": ""
+                                    },
+                                    {
+                                        "pattern": "\\$",
+                                        "repl": ""
+                                    }
+                                ]
+                            },
+                            "current_price": {
+                                "elements": {
+                                    "name": "span",
+                                    "class_": "price"
+                                },
+                                "replaces": [
+                                    {
+                                        "pattern": "\\$",
+                                        "repl": ""
+                                    },
+                                    {
+                                        "pattern": ",",
+                                        "repl": ""
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "yza": {}
+            }
         }
     }
 }

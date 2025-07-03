@@ -16,13 +16,13 @@ format = logging.Formatter(
 )
 
 
-
 class WebScrapper():
     def __init__(self, cfg:dict): 
         self.cfg:dict = cfg
         self.headers:dict = self.cfg["globals"]["headers"]
         self.timeout:int = self.cfg["globals"]["timeout"]
         self.product:str = self.cfg["globals"]["product"]
+        self.astypes:dict = self.cfg["globals"]["astypes"]
         self.stores:dict = self.cfg["stores"]
         
     def replace_values(self, string:str, values:dict)->str:
@@ -46,8 +46,13 @@ class WebScrapper():
     
     def extract_item(self, item, cfg:dict, field:str) -> str:
         try:
-         
-            value = item.find(**cfg[field]["elements"]).text
+            element:dict = cfg[field]["elements"]
+            
+            if field == "link":
+                value = item.find(element["name"])[element["prop"]]
+                return value
+            
+            value = item.find(**element).text
             
             if "replaces" in cfg[field]:
                 value = reduce(self.replace_values, cfg[field]["replaces"], value)
@@ -59,60 +64,53 @@ class WebScrapper():
             return None
     
     def get_product(self, item, cfg:dict)-> Product:
-        # description = item.find(**cfg["description"]["elements"]).text
-        # oldPrice = item.find(**cfg["old_price"]["elements"]).text
-        # currentPrice = item.find(**cfg["current_price"]["elements"]).text
-        
-        # description = reduce(self.replace_values, cfg["description"]["replaces"], currentPrice)
-        # oldPrice = reduce(self.replace_values, cfg["oldPrice"]["replaces"], currentPrice)
-        # currentPrice = reduce(self.replace_values, cfg["current_price"]["replaces"], currentPrice)
         aux_item = {}
         
         for field in cfg:
             aux_item[field] = self.extract_item(item=item, cfg=cfg, field=field)
-        print(aux_item)
-        # product = Product(description = aux_item["description"],
-        #                   old_price = aux_item["old_price"],
-        #                   current_price = aux_item["description"],
-        #                   link="")
         
-        # return product
+        return aux_item
     
-    def run(self):
-        store:dict = self.stores["similares"]["cfg"]
-        URL:str = store["url"]
-        URL = self.replace_values(values= {"pattern": "#PRODUCT#", 
-                                           "repl": self.product}, 
-                                  string  = URL)
+    def extract_products(self, store:dict)-> pd.DataFrame:
         page = 1
         products = []
-        print(self.product)
+        logger.info(f"Product to extract: {self.product}")
         
         while True:
             
-            URL = self.replace_values(values = {"pattern": "#PAGE#", 
-                                               "repl": str(page)},
-                                      string= URL)
-            logger.info(URL)
+            URL:str = store["url"]
+            values = [{"pattern": "#PRODUCT#", "repl": self.product}, 
+                      {"pattern": "#PAGE#", "repl": str(page)}]
+            
+            URL = reduce(self.replace_values, values, URL)
+            logger.info(f"Getting data from: {URL}")
             print(URL)
             response = self.request(URL)
-                        
-            if response.status_code != 200:
-                logger.error(response.error)
+                
+            items = self.extract_all_items(markup= response.text, 
+                                            cfg=store["main"]["elements"])
             
-            else:
-                
-                items = self.extract_all_items(markup= response.text, cfg=store["main"]["elements"])
-                
-                if not items:
-                    print("Without items")
-                    break
-                print(f"{len(items)} products found on page {page}")
-                
-                for item in items:     
-                    product = self.get_product(item, store["data"]).to_dict()           
-                    # products.append(product)                    
-
-                page += 1
+            if not items:
+                logger.info(f"Without items in page {page}")
                 break
-                sleep(1)
+            
+            logger.info(f"{len(items)} products found on page {page}")
+            
+            for item in items:     
+                product = self.get_product(item, store["data"])           
+                products.append(product)                    
+
+            page += 1
+            sleep(1)
+            print(products)
+
+        df = pd.DataFrame(products)
+        df = df.astype(self.astypes)
+        return df
+        
+    def run(self):
+        store:dict = self.stores["benavides"]["cfg"]
+        products = self.extract_products(store)
+        print(products)
+       
+        
