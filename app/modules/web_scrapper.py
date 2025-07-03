@@ -26,9 +26,7 @@ class WebScrapper():
         self.stores:dict = self.cfg["stores"]
         
     def replace_values(self, string:str, values:dict)->str:
-        pattern = values["pattern"]
-        repl = values["repl"]
-        return re.sub(pattern, repl, string).strip()
+        return re.sub(string=string,**values).strip()
         
     def request(self, url:str):
         try:
